@@ -143,7 +143,7 @@ nav{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-
 .qual-note{font-size:.68rem;color:var(--muted2);margin-top:.35rem}
 
 /* LEGEND */
-.score-legend{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.score-legend{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.1rem;justify-content:center}
 .sl{background:var(--s2);border:1px solid var(--bdr);border-radius:6px;padding:4px 10px;font-size:.7rem;color:var(--muted)}
 .sl strong{color:var(--gold)}
 
@@ -250,7 +250,7 @@ nav{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-
 /* SCHEDULE */
 .day-block{margin-bottom:1.1rem}
 .day-head{font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;color:var(--gold);font-weight:600;margin-bottom:.5rem;padding:.3rem 0;border-bottom:1px solid var(--bdr)}
-.sched-match{display:grid;grid-template-columns:70px 1fr 28px 1fr 85px;gap:6px;align-items:center;padding:.45rem .7rem;border-radius:8px;margin-bottom:.28rem;background:var(--s1);border:1px solid var(--bdr);transition:background .14s}
+.sched-match{display:grid;grid-template-columns:70px 1fr 60px 1fr;gap:6px;align-items:center;padding:.45rem .7rem;border-radius:8px;margin-bottom:.28rem;background:var(--s1);border:1px solid var(--bdr);transition:background .14s}
 .sched-match:hover{background:var(--s2)}
 .sched-match.live{border-color:rgba(231,76,60,.4);background:rgba(231,76,60,.06)}
 .sched-match.done{opacity:.75}
@@ -296,7 +296,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   .hero h1{font-size:2.3rem}
   .match-row{grid-template-columns:1fr 66px 1fr}
   .sc{width:29px;height:29px;font-size:.84rem}
-  .sched-match{grid-template-columns:58px 1fr 22px 1fr 60px;gap:4px}
+  .sched-match{grid-template-columns:58px 1fr 50px 1fr;gap:4px}
   .sched-time{font-size:.82rem}
 }
 </style>
@@ -315,7 +315,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <!-- ══════════════════════ PREDICTIONS ══════════════════════ -->
 <div id="view-predict" class="view on">
   <div class="hero">
-    <div class="pill">⚽ FIFA World Cup USA · MEX · CAN 2026</div>
     <h1>SEG Crew<br><span>World Cup Pool</span></h1>
     <p>Predict group stage scores + top 2 teams per group · Entry fee: <strong style="color:var(--gold)">$50</strong></p>
   </div>
@@ -324,7 +323,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sl">Exact score <strong>+3 pts</strong></div>
     <div class="sl">Correct result <strong>+1 pt</strong></div>
     <div class="sl">Correct qualifier <strong>+2 pts</strong></div>
-    <div class="sl">Draws count ✓</div>
   </div>
 
   <!-- Step 1: name -->
@@ -354,6 +352,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="prog-wrap">
       <div class="prog-info"><span id="prog-label">0 of 72 matches filled</span><span id="prog-pct" style="color:var(--gold)">0%</span></div>
       <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div style="background:rgba(29,138,68,.1);border:1px solid var(--green-b);border-radius:8px;padding:.55rem .9rem;margin-bottom:1rem;font-size:.75rem;color:#5dca8a;display:flex;align-items:center;gap:.5rem">
+      <span>💡</span><span><strong>Tip:</strong> Draws are valid predictions! If you think a match ends level, predict equal scores — e.g. <strong>1 : 1</strong> or <strong>0 : 0</strong>.</span>
     </div>
     <div class="sec-pills" id="group-pills"></div>
     <div id="groups-container"></div>
@@ -840,8 +841,8 @@ function refreshViewerDropdown(){
   // Sort alphabetically
   [...entries].sort((a,b)=>a.name.localeCompare(b.name)).forEach(e=>{
     const opt = document.createElement('option');
-    opt.value = e.timestamp; // use timestamp as unique key
-    opt.textContent = e.name + (e.department ? ` — ${e.department}` : '') + (e.paid ? ' ✓' : '');
+    opt.value = e.timestamp;
+    opt.textContent = e.name;
     sel.appendChild(opt);
   });
   // Restore selection if still valid
@@ -986,7 +987,6 @@ function renderLeaderboard(){
       <div class="lb-pts">${e.points}</div>
       <div class="lb-paid">${e.paid?'<span class="badge badge-ok">Paid</span>':'<span class="badge badge-no">Pending</span>'}</div>
     </div>`).join('');
-  renderHub();
 }
 
 // ══════════════════════════════════════
@@ -1000,6 +1000,16 @@ function showHub(tab, btn){
 }
 
 function renderHub(){
+  // Always reset to schedule tab being visible
+  const schedEl = document.getElementById('hub-schedule');
+  const resEl   = document.getElementById('hub-results');
+  if(!schedEl || !resEl) return;
+  schedEl.style.display = 'block';
+  resEl.style.display   = 'none';
+  // Reset hub tab buttons
+  document.querySelectorAll('.htab').forEach((b,i)=>{
+    b.classList.toggle('on', i===0);
+  });
   renderSchedule();
   renderResultsHub();
 }
@@ -1032,7 +1042,6 @@ function renderSchedule(){
         <div class="sched-team r"><span>${f(m.home)}</span>${m.home}</div>
         ${resultHtml}
         <div class="sched-team"><span>${f(m.away)}</span>${m.away}</div>
-        <div class="group-tag" style="text-align:right;font-size:.58rem;color:var(--muted2)">${res?`<span style="color:var(--gold)">${res.h}–${res.a}</span>`:'—'}</div>
       </div>`;
     });
     html += '</div>';
@@ -1064,7 +1073,6 @@ function renderResultsHub(){
         <div class="sched-team r"><span>${f(m.home)}</span>${m.home}</div>
         <div class="sched-result">${res.h}–${res.a}</div>
         <div class="sched-team"><span>${f(m.away)}</span>${m.away}</div>
-        <div class="group-tag">${getResult(res.h,res.a)==='H'?'🏠 Win':getResult(res.h,res.a)==='A'?'✈ Win':'Draw'}</div>
       </div>`;
     });
     html+='</div>';
@@ -1189,7 +1197,7 @@ function showView(id,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.getElementById(`view-${id}`).classList.add('on');
   if(btn) btn.classList.add('on');
-  if(id==='leaderboard') renderLeaderboard();
+  if(id==='leaderboard'){ renderLeaderboard(); renderHub(); }
 }
 let toastTimer;
 function showToast(msg,bg='var(--ok)'){
