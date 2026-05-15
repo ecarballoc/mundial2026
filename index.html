@@ -368,13 +368,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div style="font-size:2.8rem;margin-bottom:.65rem">🎉</div>
       <h2 style="font-size:2rem;margin-bottom:.45rem;color:var(--gold)">SUBMITTED!</h2>
       <p id="done-msg" style="color:var(--muted);font-size:.87rem;line-height:1.7"></p>
-      <div style="margin-top:1.3rem;background:rgba(29,138,68,.1);border:1px solid var(--green-b);border-radius:var(--radius);padding:1rem">
-        <p style="font-size:.8rem;color:#5dca8a;margin-bottom:.75rem">📧 Want a copy of your predictions? Enter your email and we'll send them to you.</p>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center">
-          <input type="email" id="email-input" placeholder="your@email.com" style="flex:1;min-width:200px;background:var(--s2);border:1px solid var(--bdr2);border-radius:var(--radius);color:var(--txt);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none">
-          <button class="btn btn-green btn-sm" onclick="emailPredictions()">Send to my email</button>
-        </div>
-        <p style="font-size:.7rem;color:var(--muted2);margin-top:.5rem">Optional — skip this if you don't need a copy</p>
+      <div style="margin-top:1.3rem;background:rgba(29,138,68,.1);border:1px solid var(--green-b);border-radius:var(--radius);padding:1rem;text-align:center">
+        <p style="font-size:.8rem;color:#5dca8a;margin-bottom:.75rem">📄 Want a copy of your predictions saved to your device?</p>
+        <button class="btn btn-green" onclick="downloadPredictionsPDF()">⬇ Download My Predictions</button>
+        <p style="font-size:.7rem;color:var(--muted2);margin-top:.5rem">Saves as a PDF — optional, skip if you don't need it</p>
       </div>
       <div style="margin-top:1rem">
         <button class="btn btn-outline" onclick="newEntry()">Submit Another Entry</button>
@@ -464,7 +461,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = ''; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 
@@ -831,31 +828,75 @@ function showJustSubmittedViewer(){
   // no-op now — viewer moved to admin
 }
 
-function emailPredictions(){
+function downloadPredictionsPDF(){
   if(!lastSubmitted){ showToast('No submission found.','var(--danger)'); return; }
-  const email = document.getElementById('email-input').value.trim();
-  if(!email || !email.includes('@')){ showToast('Please enter a valid email address.','var(--danger)'); return; }
+  const entry = lastSubmitted;
+  const preds = entry.predictions || {};
+  const quals = entry.qualifiers || {};
 
-  // Build plain text summary of predictions
-  const preds = lastSubmitted.predictions || {};
-  const quals = lastSubmitted.qualifiers || {};
-  let body = `SEG Crew 2026 World Cup Pool — Predictions for ${lastSubmitted.name}\n`;
-  body += `Submitted: ${lastSubmitted.timestamp}\n\n`;
-
+  // Build printable HTML
+  let rows = '';
   GROUPS.forEach(g => {
-    body += `GROUP ${g.id}\n`;
-    buildMatches(g).forEach(m => {
+    const matches = buildMatches(g);
+    const groupQuals = quals[g.id] || [];
+    rows += `<div class="grp">
+      <div class="grp-head">Group ${g.id} &nbsp;·&nbsp; ${g.teams.join(' · ')}</div>`;
+    matches.forEach(m => {
       const p = preds[m.id];
-      body += `  ${m.home} vs ${m.away}: ${p ? p.h+'-'+p.a : 'not filled'}\n`;
+      const score = p != null ? `<span class="score">${p.h} – ${p.a}</span>` : `<span class="score tbd">—</span>`;
+      rows += `<div class="row">
+        <span class="team r">${m.home}</span>
+        ${score}
+        <span class="team">${m.away}</span>
+      </div>`;
     });
-    const q = quals[g.id] || [];
-    body += `  Qualifiers: ${q.length ? q.join(' & ') : 'not picked'}\n\n`;
+    rows += `<div class="quals">Qualifiers picked: <strong>${groupQuals.length ? groupQuals.join(' &amp; ') : 'none'}</strong></div>`;
+    rows += `</div>`;
   });
 
-  const subject = encodeURIComponent('SEG Crew Pool 2026 — Your Predictions');
-  const bodyEncoded = encodeURIComponent(body);
-  window.location.href = `mailto:${email}?subject=${subject}&body=${bodyEncoded}`;
-  showToast('Opening email app…');
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>SEG Crew Pool 2026 — ${entry.name}</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Arial,sans-serif;font-size:11px;color:#111;padding:14px;background:#fff}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a7a3c;padding-bottom:8px;margin-bottom:12px}
+      .header h1{font-size:18px;color:#1a7a3c;letter-spacing:.03em}
+      .header .meta{font-size:9px;color:#666;text-align:right;line-height:1.7}
+      .grp{margin-bottom:10px;border:1px solid #e0e0e0;border-radius:5px;overflow:hidden;page-break-inside:avoid}
+      .grp-head{background:#1a7a3c;color:#fff;font-weight:bold;font-size:9px;padding:4px 8px;text-transform:uppercase;letter-spacing:.08em}
+      .row{display:grid;grid-template-columns:1fr 55px 1fr;gap:4px;align-items:center;padding:3px 8px;border-bottom:1px solid #f0f0f0}
+      .row:last-of-type{border-bottom:none}
+      .team{font-size:10px;font-weight:500}
+      .team.r{text-align:right}
+      .score{font-weight:bold;font-size:12px;color:#c47a00;text-align:center}
+      .score.tbd{color:#bbb;font-weight:normal;font-size:10px}
+      .quals{font-size:9px;color:#555;padding:4px 8px;background:#f9f9f9;border-top:1px solid #eee}
+      .quals strong{color:#1a7a3c}
+      .footer{margin-top:12px;font-size:8px;color:#999;text-align:center;border-top:1px solid #eee;padding-top:6px}
+      @media print{body{padding:8px}.grp{page-break-inside:avoid}}
+    </style>
+  </head><body>
+    <div class="header">
+      <div>
+        <h1>⚽ SEG Crew World Cup Pool 2026</h1>
+        <div style="font-size:11px;font-weight:bold;margin-top:3px">${entry.name}${entry.department ? ' — ' + entry.department : ''}</div>
+      </div>
+      <div class="meta">
+        Submitted: ${entry.timestamp}<br>
+        Entry fee: $50 FJD<br>
+        <strong style="color:#c47a00">Keep this as your reference!</strong>
+      </div>
+    </div>
+    ${rows}
+    <div class="footer">SEG Crew 2026 World Cup Pool · Organised by Enrique, Security Dept · Predictions are final once submitted</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => {
+    w.print(); // triggers Save as PDF on mobile & desktop
+  }, 500);
+  showToast('Opening PDF — choose "Save as PDF" to download!');
 }
 
 // ══════════════════════════════════════
