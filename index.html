@@ -402,12 +402,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
   <!-- RESULTS & SCHEDULE HUB -->
   <div class="hub-divider">Match Hub</div>
-  <div class="hub-tabs">
-    <button class="htab on" onclick="showHub('schedule',this)">📅 Schedule</button>
-    <button class="htab" onclick="showHub('results',this)">🏆 Results</button>
-  </div>
+
   <div id="hub-schedule"></div>
-  <div id="hub-results" style="display:none"></div>
 </div>
 
 <!-- ══════════════════════ ADMIN ══════════════════════ -->
@@ -460,7 +456,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = ''; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 
@@ -1006,26 +1002,13 @@ function renderLeaderboard(){
 // ══════════════════════════════════════
 //  RESULTS & SCHEDULE HUB
 // ══════════════════════════════════════
-function showHub(tab, btn){
-  document.getElementById('hub-schedule').style.display = tab==='schedule' ? 'block' : 'none';
-  document.getElementById('hub-results').style.display  = tab==='results'  ? 'block' : 'none';
-  document.querySelectorAll('.htab').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-}
+
 
 function renderHub(){
-  // Always reset to schedule tab being visible
   const schedEl = document.getElementById('hub-schedule');
-  const resEl   = document.getElementById('hub-results');
-  if(!schedEl || !resEl) return;
+  if(!schedEl) return;
   schedEl.style.display = 'block';
-  resEl.style.display   = 'none';
-  // Reset hub tab buttons
-  document.querySelectorAll('.htab').forEach((b,i)=>{
-    b.classList.toggle('on', i===0);
-  });
   renderSchedule();
-  renderResultsHub();
 }
 
 function renderSchedule(){
@@ -1063,36 +1046,6 @@ function renderSchedule(){
   el.innerHTML = html || '<div class="empty"><p>Schedule loading…</p></div>';
 }
 
-function renderResultsHub(){
-  const played = SCHEDULE.filter(m => results[m.id]);
-  const el = document.getElementById('hub-results');
-  if(!played.length){
-    el.innerHTML='<div class="empty"><span class="big">⏳</span><p>No results yet — check back once matches start!</p></div>';
-    return;
-  }
-  // Group by group
-  const byGroup = {};
-  played.forEach(m => {
-    if(!byGroup[m.group]) byGroup[m.group]=[];
-    byGroup[m.group].push(m);
-  });
-  let html='';
-  Object.keys(byGroup).sort().forEach(gid => {
-    html+=`<div class="day-block"><div class="day-head">Group ${gid}</div>`;
-    byGroup[gid].forEach(m => {
-      const res=results[m.id];
-      const fiji=etToFiji(m.dateET,m.timeET);
-      html+=`<div class="sched-match done">
-        <div class="sched-time">${fiji.time}<small>${fiji.day.split(' ').slice(0,2).join(' ')}</small></div>
-        <div class="sched-team r"><span>${f(m.home)}</span>${m.home}</div>
-        <div class="sched-result">${res.h}–${res.a}</div>
-        <div class="sched-team"><span>${f(m.away)}</span>${m.away}</div>
-      </div>`;
-    });
-    html+='</div>';
-  });
-  el.innerHTML=html;
-}
 
 // ══════════════════════════════════════
 //  ADMIN
