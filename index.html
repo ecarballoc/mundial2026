@@ -334,17 +334,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
       <div style="text-align:right"><button class="btn btn-primary" onclick="startForm()">Start Predictions →</button></div>
     </div>
-    <!-- Viewer always visible on predict tab -->
-    <div class="viewer-section card" style="margin-top:1rem" id="viewer-always">
-      <h3>🔍 View Your Predictions</h3>
-      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.8rem">Select your name from the list to view your submitted predictions. <strong style="color:var(--gold)">Read-only</strong> — no changes can be made after submitting.</p>
-      <div class="viewer-search">
-        <select class="viewer-select" id="viewer-select" onchange="lookupPredictions()">
-          <option value="">— Select your name —</option>
-        </select>
-      </div>
-      <div id="viewer-results"></div>
-    </div>
+
   </div>
 
   <!-- Step 2: form -->
@@ -378,9 +368,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div style="font-size:2.8rem;margin-bottom:.65rem">🎉</div>
       <h2 style="font-size:2rem;margin-bottom:.45rem;color:var(--gold)">SUBMITTED!</h2>
       <p id="done-msg" style="color:var(--muted);font-size:.87rem;line-height:1.7"></p>
-      <div style="margin-top:1.3rem;display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap">
+      <div style="margin-top:1.3rem;background:rgba(29,138,68,.1);border:1px solid var(--green-b);border-radius:var(--radius);padding:1rem">
+        <p style="font-size:.8rem;color:#5dca8a;margin-bottom:.75rem">📧 Want a copy of your predictions? Enter your email and we'll send them to you.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center">
+          <input type="email" id="email-input" placeholder="your@email.com" style="flex:1;min-width:200px;background:var(--s2);border:1px solid var(--bdr2);border-radius:var(--radius);color:var(--txt);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none">
+          <button class="btn btn-green btn-sm" onclick="emailPredictions()">Send to my email</button>
+        </div>
+        <p style="font-size:.7rem;color:var(--muted2);margin-top:.5rem">Optional — skip this if you don't need a copy</p>
+      </div>
+      <div style="margin-top:1rem">
         <button class="btn btn-outline" onclick="newEntry()">Submit Another Entry</button>
-        <button class="btn btn-primary" onclick="showJustSubmittedViewer()">View My Predictions →</button>
       </div>
     </div>
   </div>
@@ -444,6 +441,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div style="text-align:right;margin-top:1rem">
       <button class="btn btn-primary btn-sm" onclick="saveResults()">Save Results & Recalculate ↻</button>
     </div>
+
+    <div class="sec-divider">View Player Predictions</div>
+    <div class="card" id="admin-viewer-card">
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.9rem">Select a player to view their full prediction sheet. You can also print it for them.</p>
+      <div class="viewer-search">
+        <select class="viewer-select" id="viewer-select" onchange="lookupPredictions()">
+          <option value="">— Select a player —</option>
+        </select>
+      </div>
+      <div id="viewer-results"></div>
+    </div>
   </div>
 </div>
 
@@ -456,7 +464,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = ''; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 
@@ -820,16 +828,34 @@ function newEntry(){
   currentName=''; currentDept='';
 }
 function showJustSubmittedViewer(){
-  document.getElementById('step-done').style.display='none';
-  document.getElementById('step-name').style.display='block';
-  refreshViewerDropdown();
-  if(lastSubmitted){
-    // Select the just-submitted entry in the dropdown
-    const sel = document.getElementById('viewer-select');
-    const opt = [...sel.options].find(o=>o.value===lastSubmitted.timestamp);
-    if(opt) { sel.value = lastSubmitted.timestamp; lookupPredictions(); }
-    document.getElementById('viewer-always').scrollIntoView({behavior:'smooth'});
-  }
+  // no-op now — viewer moved to admin
+}
+
+function emailPredictions(){
+  if(!lastSubmitted){ showToast('No submission found.','var(--danger)'); return; }
+  const email = document.getElementById('email-input').value.trim();
+  if(!email || !email.includes('@')){ showToast('Please enter a valid email address.','var(--danger)'); return; }
+
+  // Build plain text summary of predictions
+  const preds = lastSubmitted.predictions || {};
+  const quals = lastSubmitted.qualifiers || {};
+  let body = `SEG Crew 2026 World Cup Pool — Predictions for ${lastSubmitted.name}\n`;
+  body += `Submitted: ${lastSubmitted.timestamp}\n\n`;
+
+  GROUPS.forEach(g => {
+    body += `GROUP ${g.id}\n`;
+    buildMatches(g).forEach(m => {
+      const p = preds[m.id];
+      body += `  ${m.home} vs ${m.away}: ${p ? p.h+'-'+p.a : 'not filled'}\n`;
+    });
+    const q = quals[g.id] || [];
+    body += `  Qualifiers: ${q.length ? q.join(' & ') : 'not picked'}\n\n`;
+  });
+
+  const subject = encodeURIComponent('SEG Crew Pool 2026 — Your Predictions');
+  const bodyEncoded = encodeURIComponent(body);
+  window.location.href = `mailto:${email}?subject=${subject}&body=${bodyEncoded}`;
+  showToast('Opening email app…');
 }
 
 // ══════════════════════════════════════
@@ -1055,14 +1081,14 @@ function adminLogin(){
     document.getElementById('admin-gate').style.display='none';
     document.getElementById('admin-panel').style.display='block';
     if(GOOGLE_SCRIPT_URL) document.getElementById('setup-notice').style.display='none';
-    renderAdmin(); buildResultsUI();
+    renderAdmin(); buildResultsUI(); refreshViewerDropdown();
   } else showToast('Wrong password!','var(--danger)');
 }
 async function refreshAdmin(){
   showToast('Refreshing…');
   const re=await fetchEntriesFromSheet(); if(re){entries=re;saveLocal();}
   const rr=await fetchResultsFromSheet(); if(rr){results=rr;saveLocal();}
-  recalcAll(); renderAdmin(); renderLeaderboard(); showToast('✓ Refreshed!');
+  recalcAll(); renderAdmin(); renderLeaderboard(); refreshViewerDropdown(); showToast('✓ Refreshed!');
 }
 function renderAdmin(){
   const paidCount=entries.filter(e=>e.paid).length;
