@@ -460,7 +460,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyykHgrrP-oKw1PStcBZLB5U3Q9NhULLX0gWQFsQGW2LJKkLpFXoTO2dj_qQULDEeO_cw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 
@@ -644,7 +644,21 @@ function saveLocal(){lsSet('seg_entries',entries);lsSet('seg_results',results);}
 // ══════════════════════════════════════
 async function gsPost(data){
   if(!GOOGLE_SCRIPT_URL) return null;
-  try{const r=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}});return await r.json();}catch{return null;}
+  try{
+    // Use GET + payload param to avoid CORS preflight blocks on Apps Script
+    const payload = encodeURIComponent(JSON.stringify(data));
+    const url = GOOGLE_SCRIPT_URL + '?payload=' + payload;
+    const r = await fetch(url, {method:'GET', redirect:'follow'});
+    const text = await r.text();
+    // Parse — strip anything before first { and after last }
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if(start === -1 || end === -1) return null;
+    return JSON.parse(text.substring(start, end+1));
+  }catch(err){
+    console.error('gsPost error:', err);
+    return null;
+  }
 }
 async function submitToSheet(e){return await gsPost({action:'submit',...e});}
 async function fetchEntriesFromSheet(){
