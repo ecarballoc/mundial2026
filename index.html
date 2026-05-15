@@ -456,7 +456,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = ''; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 
@@ -1159,12 +1159,24 @@ async function saveResults(){
 // ══════════════════════════════════════
 //  UTILS
 // ══════════════════════════════════════
-function showView(id,btn){
+async function showView(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.getElementById(`view-${id}`).classList.add('on');
   if(btn) btn.classList.add('on');
-  if(id==='leaderboard'){ renderLeaderboard(); renderHub(); }
+  if(id==='leaderboard'){
+    renderLeaderboard(); renderHub(); // render immediately with local data
+    if(GOOGLE_SCRIPT_URL){
+      // Then fetch fresh data silently
+      try{
+        const [re, rr] = await Promise.all([fetchEntriesFromSheet(), fetchResultsFromSheet()]);
+        let changed = false;
+        if(re && re.length >= entries.length){ entries=re; changed=true; }
+        if(rr && Object.keys(rr).length >= Object.keys(results).length){ results=rr; changed=true; }
+        if(changed){ saveLocal(); recalcAll(); renderLeaderboard(); renderHub(); }
+      }catch(e){}
+    }
+  }
 }
 let toastTimer;
 function showToast(msg,bg='var(--ok)'){
@@ -1174,10 +1186,39 @@ function showToast(msg,bg='var(--ok)'){
   toastTimer=setTimeout(()=>t.classList.remove('on'),3200);
 }
 
-// INIT
-loadLocal();
-renderLeaderboard();
-refreshViewerDropdown();
+// INIT — always load from Google Sheets first if connected, fall back to local
+async function init(){
+  loadLocal(); // load local first so UI isn't blank
+  renderLeaderboard();
+  refreshViewerDropdown();
+  if(GOOGLE_SCRIPT_URL){
+    // Silently fetch latest data from Sheet in background
+    try{
+      const [remoteEntries, remoteResults] = await Promise.all([
+        fetchEntriesFromSheet(),
+        fetchResultsFromSheet()
+      ]);
+      let changed = false;
+      if(remoteEntries && remoteEntries.length >= entries.length){
+        entries = remoteEntries;
+        changed = true;
+      }
+      if(remoteResults && Object.keys(remoteResults).length >= Object.keys(results).length){
+        results = remoteResults;
+        changed = true;
+      }
+      if(changed){
+        saveLocal();
+        recalcAll();
+        renderLeaderboard();
+        refreshViewerDropdown();
+      }
+    }catch(e){
+      console.log('Background sync failed, using local data');
+    }
+  }
+}
+init();
 </script>
 </body>
 </html>
