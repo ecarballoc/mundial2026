@@ -299,6 +299,44 @@ tr:hover td{background:rgba(255,255,255,.02)}
   .sched-match{grid-template-columns:58px 1fr 50px 1fr;gap:4px}
   .sched-time{font-size:.82rem}
 }
+
+/* ─── GUIDED TOUR ─── */
+.tour-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;transition:all .3s}
+.tour-overlay.active{pointer-events:all}
+.tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9997;pointer-events:all}
+.tour-highlight{
+  position:fixed;z-index:9999;border-radius:12px;
+  box-shadow:0 0 0 4px var(--gold),0 0 0 9999px rgba(0,0,0,.72);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.tour-bubble{
+  position:fixed;z-index:10000;
+  background:var(--s1);border:1px solid var(--gold-b);border-radius:14px;
+  padding:1.1rem 1.2rem;max-width:280px;min-width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  animation:bubblePop .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes bubblePop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.tour-bubble::before{
+  content:'';position:absolute;width:12px;height:12px;
+  background:var(--s1);border:1px solid var(--gold-b);
+  transform:rotate(45deg);
+}
+.tour-bubble.arrow-top::before{top:-7px;left:50%;transform:translateX(-50%) rotate(45deg);border-bottom:none;border-right:none}
+.tour-bubble.arrow-bottom::before{bottom:-7px;left:50%;transform:translateX(-50%) rotate(45deg);border-top:none;border-left:none}
+.tour-bubble.arrow-left::before{left:-7px;top:24px;transform:rotate(45deg);border-right:none;border-top:none}
+.tour-step-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);font-weight:700;margin-bottom:.35rem}
+.tour-bubble h4{font-size:.95rem;color:var(--txt);font-weight:600;margin-bottom:.3rem;line-height:1.3}
+.tour-bubble p{font-size:.78rem;color:var(--muted);line-height:1.55}
+.tour-actions{display:flex;align-items:center;justify-content:space-between;margin-top:.85rem;gap:.5rem}
+.tour-dots{display:flex;gap:5px}
+.tour-dot{width:6px;height:6px;border-radius:50%;background:var(--bdr2);transition:background .2s}
+.tour-dot.active{background:var(--gold)}
+.tour-skip{font-size:.72rem;color:var(--muted2);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:2px 4px}
+.tour-skip:hover{color:var(--muted)}
+.tour-next{font-size:.78rem;font-weight:600;cursor:pointer;background:var(--gold);color:#0b0f14;border:none;border-radius:6px;padding:6px 14px;font-family:'DM Sans',sans-serif;transition:background .15s}
+.tour-next:hover{background:#f7b833}
 </style>
 </head>
 <body>
@@ -461,7 +499,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = ''; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 
@@ -876,7 +914,45 @@ function downloadPredictionsPDF(){
       .quals strong{color:#1a7a3c}
       .footer{margin-top:12px;font-size:8px;color:#999;text-align:center;border-top:1px solid #eee;padding-top:6px}
       @media print{body{padding:8px}.grp{page-break-inside:avoid}}
-    </style>
+    
+/* ─── GUIDED TOUR ─── */
+.tour-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;transition:all .3s}
+.tour-overlay.active{pointer-events:all}
+.tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9997;pointer-events:all}
+.tour-highlight{
+  position:fixed;z-index:9999;border-radius:12px;
+  box-shadow:0 0 0 4px var(--gold),0 0 0 9999px rgba(0,0,0,.72);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.tour-bubble{
+  position:fixed;z-index:10000;
+  background:var(--s1);border:1px solid var(--gold-b);border-radius:14px;
+  padding:1.1rem 1.2rem;max-width:280px;min-width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  animation:bubblePop .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes bubblePop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.tour-bubble::before{
+  content:'';position:absolute;width:12px;height:12px;
+  background:var(--s1);border:1px solid var(--gold-b);
+  transform:rotate(45deg);
+}
+.tour-bubble.arrow-top::before{top:-7px;left:50%;transform:translateX(-50%) rotate(45deg);border-bottom:none;border-right:none}
+.tour-bubble.arrow-bottom::before{bottom:-7px;left:50%;transform:translateX(-50%) rotate(45deg);border-top:none;border-left:none}
+.tour-bubble.arrow-left::before{left:-7px;top:24px;transform:rotate(45deg);border-right:none;border-top:none}
+.tour-step-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);font-weight:700;margin-bottom:.35rem}
+.tour-bubble h4{font-size:.95rem;color:var(--txt);font-weight:600;margin-bottom:.3rem;line-height:1.3}
+.tour-bubble p{font-size:.78rem;color:var(--muted);line-height:1.55}
+.tour-actions{display:flex;align-items:center;justify-content:space-between;margin-top:.85rem;gap:.5rem}
+.tour-dots{display:flex;gap:5px}
+.tour-dot{width:6px;height:6px;border-radius:50%;background:var(--bdr2);transition:background .2s}
+.tour-dot.active{background:var(--gold)}
+.tour-skip{font-size:.72rem;color:var(--muted2);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:2px 4px}
+.tour-skip:hover{color:var(--muted)}
+.tour-next{font-size:.78rem;font-weight:600;cursor:pointer;background:var(--gold);color:#0b0f14;border:none;border-radius:6px;padding:6px 14px;font-family:'DM Sans',sans-serif;transition:background .15s}
+.tour-next:hover{background:#f7b833}
+</style>
   </head><body>
     <div class="header">
       <div>
@@ -891,7 +967,23 @@ function downloadPredictionsPDF(){
     </div>
     ${rows}
     <div class="footer">SEG Crew 2026 World Cup Pool · Organised by Enrique, Security Dept · Predictions are final once submitted</div>
-  </body></html>`);
+  
+<!-- ─── GUIDED TOUR ─── -->
+<div class="tour-highlight" id="tour-highlight" style="display:none"></div>
+<div class="tour-bubble" id="tour-bubble" style="display:none">
+  <div class="tour-step-label" id="tour-step-label">Step 1 of 4</div>
+  <h4 id="tour-title"></h4>
+  <p id="tour-body"></p>
+  <div class="tour-actions">
+    <div class="tour-dots" id="tour-dots"></div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button class="tour-skip" onclick="endTour()">Skip tour</button>
+      <button class="tour-next" id="tour-next-btn" onclick="tourNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+</body></html>`);
   w.document.close();
   setTimeout(() => {
     w.print(); // triggers Save as PDF on mobile & desktop
@@ -1028,13 +1120,67 @@ function printPredictions(){
       .qchip{background:#fff8e6;border:1px solid #F5A623;border-radius:4px;padding:2px 7px;font-size:.7rem;color:#b8860b}
       .no-print{display:none!important}
       @media print{.no-print{display:none!important}}
-    </style></head><body>
+    
+/* ─── GUIDED TOUR ─── */
+.tour-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;transition:all .3s}
+.tour-overlay.active{pointer-events:all}
+.tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9997;pointer-events:all}
+.tour-highlight{
+  position:fixed;z-index:9999;border-radius:12px;
+  box-shadow:0 0 0 4px var(--gold),0 0 0 9999px rgba(0,0,0,.72);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.tour-bubble{
+  position:fixed;z-index:10000;
+  background:var(--s1);border:1px solid var(--gold-b);border-radius:14px;
+  padding:1.1rem 1.2rem;max-width:280px;min-width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  animation:bubblePop .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes bubblePop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.tour-bubble::before{
+  content:'';position:absolute;width:12px;height:12px;
+  background:var(--s1);border:1px solid var(--gold-b);
+  transform:rotate(45deg);
+}
+.tour-bubble.arrow-top::before{top:-7px;left:50%;transform:translateX(-50%) rotate(45deg);border-bottom:none;border-right:none}
+.tour-bubble.arrow-bottom::before{bottom:-7px;left:50%;transform:translateX(-50%) rotate(45deg);border-top:none;border-left:none}
+.tour-bubble.arrow-left::before{left:-7px;top:24px;transform:rotate(45deg);border-right:none;border-top:none}
+.tour-step-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);font-weight:700;margin-bottom:.35rem}
+.tour-bubble h4{font-size:.95rem;color:var(--txt);font-weight:600;margin-bottom:.3rem;line-height:1.3}
+.tour-bubble p{font-size:.78rem;color:var(--muted);line-height:1.55}
+.tour-actions{display:flex;align-items:center;justify-content:space-between;margin-top:.85rem;gap:.5rem}
+.tour-dots{display:flex;gap:5px}
+.tour-dot{width:6px;height:6px;border-radius:50%;background:var(--bdr2);transition:background .2s}
+.tour-dot.active{background:var(--gold)}
+.tour-skip{font-size:.72rem;color:var(--muted2);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:2px 4px}
+.tour-skip:hover{color:var(--muted)}
+.tour-next{font-size:.78rem;font-weight:600;cursor:pointer;background:var(--gold);color:#0b0f14;border:none;border-radius:6px;padding:6px 14px;font-family:'DM Sans',sans-serif;transition:background .15s}
+.tour-next:hover{background:#f7b833}
+</style></head><body>
     <div class="print-header">
       <h2>SEG Crew 2026 World Cup Pool</h2>
       <small>Printed: ${new Date().toLocaleString()}</small>
     </div>
     ${content.innerHTML}
-    </body></html>`);
+    
+<!-- ─── GUIDED TOUR ─── -->
+<div class="tour-highlight" id="tour-highlight" style="display:none"></div>
+<div class="tour-bubble" id="tour-bubble" style="display:none">
+  <div class="tour-step-label" id="tour-step-label">Step 1 of 4</div>
+  <h4 id="tour-title"></h4>
+  <p id="tour-body"></p>
+  <div class="tour-actions">
+    <div class="tour-dots" id="tour-dots"></div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button class="tour-skip" onclick="endTour()">Skip tour</button>
+      <button class="tour-next" id="tour-next-btn" onclick="tourNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),600);
 }
@@ -1207,20 +1353,29 @@ function toggleOQ(gid,team,el){
   else{if(arr.length>=2){showToast('Already 2 official qualifiers!','var(--danger)');return;}arr.push(team);el.className='qt sel';}
 }
 async function saveResults(){
-  let saved=0;
+  let saved=0, cleared=0;
   for(const m of ALL_MATCHES){
-    const hEl=document.getElementById(`rh_${m.id}`),aEl=document.getElementById(`ra_${m.id}`);
-    if(!hEl||!aEl||hEl.value===''||aEl.value==='') continue;
-    const h=parseInt(hEl.value),a=parseInt(aEl.value);
-    results[m.id]={h,a};
-    if(GOOGLE_SCRIPT_URL) await saveResultToSheet(m.id,h,a);
-    saved++;
+    const hEl=document.getElementById('rh_'+m.id), aEl=document.getElementById('ra_'+m.id);
+    if(!hEl||!aEl) continue;
+    // Both empty = clear/delete this result
+    if(hEl.value==='' && aEl.value===''){
+      if(results[m.id]){
+        delete results[m.id];
+        if(GOOGLE_SCRIPT_URL) await gsPost({action:'deleteResult', matchId:m.id});
+        cleared++;
+      }
+    } else if(hEl.value!=='' && aEl.value!==''){
+      const h=parseInt(hEl.value), a=parseInt(aEl.value);
+      results[m.id]={h,a};
+      if(GOOGLE_SCRIPT_URL) await saveResultToSheet(m.id,h,a);
+      saved++;
+    }
   }
   saveLocal(); recalcAll();
   if(GOOGLE_SCRIPT_URL){for(const e of entries) await gsPost({action:'updatePoints',timestamp:e.timestamp,points:e.points});}
   else saveLocal();
   renderAdmin(); renderLeaderboard();
-  showToast(`✓ ${saved} results saved — points recalculated!`);
+  showToast('✓ '+saved+' saved'+(cleared?' · '+cleared+' cleared':'')+' — points recalculated!');
 }
 
 // ══════════════════════════════════════
@@ -1253,11 +1408,166 @@ function showToast(msg,bg='var(--ok)'){
   toastTimer=setTimeout(()=>t.classList.remove('on'),3200);
 }
 
+
+// ══════════════════════════════════════
+//  GUIDED TOUR
+// ══════════════════════════════════════
+const TOUR_STEPS = [
+  {
+    targetId: 'step-name',
+    title: 'Welcome to the SEG Crew Pool! 👋',
+    body: 'Start by entering your full name and department, then hit "Start Predictions" to begin.',
+    arrow: 'arrow-top',
+    position: 'below'
+  },
+  {
+    targetId: 'group-pills',
+    title: 'Navigate between groups',
+    body: 'Use these buttons to jump to any group. There are 12 groups — A through L.',
+    arrow: 'arrow-top',
+    position: 'below'
+  },
+  {
+    targetId: 'gblock-A',
+    title: 'Predict the score ⚽',
+    body: 'Enter the score you predict for each match. Draws count too — try 1:1 or 0:0! Exact score = 3pts, correct result = 1pt.',
+    arrow: 'arrow-top',
+    position: 'below'
+  },
+  {
+    targetId: 'gblock-A',
+    title: 'Pick your qualifiers ⬆',
+    body: 'Scroll down in each group and pick the 2 teams you think will advance. Each correct pick = 2pts.',
+    arrow: 'arrow-top',
+    position: 'below',
+    scrollToQual: true
+  },
+  {
+    targetId: 'confirm-box-anchor',
+    title: 'Submit & download 🎉',
+    body: 'Once you've filled in your predictions, hit Submit at the bottom. You can download a PDF copy of your entry right after!',
+    arrow: 'arrow-bottom',
+    position: 'above'
+  }
+];
+
+let tourStep = 0;
+
+function startTour(){
+  // Only show if user hasn't seen it before
+  if(localStorage.getItem('seg_tour_done')) return;
+  tourStep = 0;
+  showTourStep();
+}
+
+function showTourStep(){
+  const step = TOUR_STEPS[tourStep];
+  if(!step){ endTour(); return; }
+
+  const highlight = document.getElementById('tour-highlight');
+  const bubble    = document.getElementById('tour-bubble');
+  const titleEl   = document.getElementById('tour-title');
+  const bodyEl    = document.getElementById('tour-body');
+  const labelEl   = document.getElementById('tour-step-label');
+  const nextBtn   = document.getElementById('tour-next-btn');
+  const dotsEl    = document.getElementById('tour-dots');
+
+  // Target element
+  let target = document.getElementById(step.targetId);
+  if(!target){ tourNext(); return; } // skip if element not visible
+
+  // Scroll target into view
+  if(step.scrollToQual){
+    // Scroll to the qualifier block inside the group
+    const qual = document.querySelector('#gblock-A .qual-block');
+    if(qual) qual.scrollIntoView({behavior:'smooth', block:'center'});
+  } else {
+    target.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+
+  setTimeout(() => {
+    target = document.getElementById(step.targetId);
+    if(!target) return;
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+
+    // Position highlight
+    highlight.style.display = 'block';
+    highlight.style.left   = (rect.left - pad) + 'px';
+    highlight.style.top    = (rect.top  - pad) + 'px';
+    highlight.style.width  = (rect.width  + pad*2) + 'px';
+    highlight.style.height = (rect.height + pad*2) + 'px';
+
+    // Position bubble
+    bubble.style.display = 'block';
+    bubble.className = 'tour-bubble ' + step.arrow;
+    titleEl.textContent = step.title;
+    bodyEl.textContent  = step.body;
+    labelEl.textContent = 'Step ' + (tourStep+1) + ' of ' + TOUR_STEPS.length;
+    nextBtn.textContent = tourStep === TOUR_STEPS.length-1 ? 'Got it! ✓' : 'Next →';
+
+    // Dots
+    dotsEl.innerHTML = TOUR_STEPS.map((_,i) =>
+      `<div class="tour-dot${i===tourStep?' active':''}"></div>`
+    ).join('');
+
+    // Position bubble relative to highlight
+    const bw = 280, bh = 160;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let bx, by;
+
+    if(step.position === 'below'){
+      by = rect.bottom + pad + 16;
+      if(by + bh > vh) by = rect.top - pad - bh - 16;
+    } else {
+      by = rect.top - pad - bh - 16;
+      if(by < 10) by = rect.bottom + pad + 16;
+    }
+
+    bx = rect.left + rect.width/2 - bw/2;
+    bx = Math.max(12, Math.min(bx, vw - bw - 12));
+
+    bubble.style.left = bx + 'px';
+    bubble.style.top  = by + 'px';
+    bubble.style.width = bw + 'px';
+  }, 450);
+}
+
+function tourNext(){
+  tourStep++;
+  if(tourStep >= TOUR_STEPS.length){ endTour(); return; }
+
+  // If we're moving to form steps, make sure form is visible
+  if(tourStep >= 1){
+    const formVisible = document.getElementById('step-form').style.display !== 'none';
+    if(!formVisible){
+      // Show a hint to start first
+      endTour();
+      showToast('Enter your name and hit Start Predictions to begin! ⚽');
+      return;
+    }
+  }
+  showTourStep();
+}
+
+function endTour(){
+  document.getElementById('tour-highlight').style.display = 'none';
+  document.getElementById('tour-bubble').style.display    = 'none';
+  localStorage.setItem('seg_tour_done', '1');
+}
+
+// Reset tour (for testing — call resetTour() in console)
+function resetTour(){
+  localStorage.removeItem('seg_tour_done');
+  showToast('Tour reset — reload the page!');
+}
+
 // INIT — always load from Google Sheets first if connected, fall back to local
 async function init(){
   loadLocal(); // load local first so UI isn't blank
   renderLeaderboard();
   refreshViewerDropdown();
+  setTimeout(startTour, 800); // start tour after brief delay
   if(GOOGLE_SCRIPT_URL){
     // Silently fetch latest data from Sheet in background
     try{
@@ -1287,5 +1597,21 @@ async function init(){
 }
 init();
 </script>
+
+<!-- ─── GUIDED TOUR ─── -->
+<div class="tour-highlight" id="tour-highlight" style="display:none"></div>
+<div class="tour-bubble" id="tour-bubble" style="display:none">
+  <div class="tour-step-label" id="tour-step-label">Step 1 of 4</div>
+  <h4 id="tour-title"></h4>
+  <p id="tour-body"></p>
+  <div class="tour-actions">
+    <div class="tour-dots" id="tour-dots"></div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button class="tour-skip" onclick="endTour()">Skip tour</button>
+      <button class="tour-next" id="tour-next-btn" onclick="tourNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
