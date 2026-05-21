@@ -316,7 +316,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div id="view-predict" class="view on">
   <div class="hero">
     <h1>SEG Crew<br><span>World Cup Pool</span></h1>
-    <p>Predict group stage scores + top 2 per group · Entry fee: <strong style="color:var(--gold)">FJD$50</strong></p>
+    <p>Predict group stage scores + top 2 teams per group · Entry fee: <strong style="color:var(--gold)">$50</strong></p>
   </div>
 
   <div class="score-legend">
@@ -324,13 +324,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sl">Correct result <strong>+1 pt</strong></div>
     <div class="sl">Correct qualifier <strong>+2 pts</strong></div>
   </div>
+  <div id="deadline-banner" style="display:none;background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.35);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1rem;text-align:center;font-size:.82rem;color:#e88888">
+    🔒 <strong>Submissions are closed.</strong> The tournament has started — no new entries accepted. Check the leaderboard to follow the action!
+  </div>
 
   <!-- Step 1: name -->
   <div id="step-name">
     <div class="card">
       <div class="info-grid">
         <div class="field"><label>Your Full Name</label><input type="text" id="playerName" placeholder="e.g. Carlos Ramirez" autocomplete="name"></div>
-        <div class="field"><label>Department</label><input type="text" id="playerDept" placeholder="e.g. Camera, UNIT…"></div>
+        <div class="field"><label>Department</label><input type="text" id="playerDept" placeholder="e.g. Engineering, Deck…"></div>
       </div>
       <div style="text-align:right"><button class="btn btn-primary" onclick="startForm()">Start Predictions →</button></div>
     </div>
@@ -461,9 +464,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31WM_82Ouw/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTR5Krzt9vQbOtkZ7Pxc4GkV1GJGVVUnrTVjCe9mgBqX8bYHPy9hcbP--g31wM_82Ouw/exec'; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
+const DEADLINE    = new Date('2026-06-11T00:00:00+12:00'); // Fiji midnight June 11 — edit date to adjust
 
 // ══════════════════════════════════════
 //  FLAGS
@@ -775,6 +779,10 @@ function updateProgress(){
 //  FORM FLOW
 // ══════════════════════════════════════
 function startForm(){
+  if(new Date() > DEADLINE){
+    showToast('Submissions are now closed — the tournament has started! ⚽','var(--danger)');
+    return;
+  }
   const name=document.getElementById('playerName').value.trim();
   if(!name){showToast('Please enter your name!','var(--danger)');return;}
   currentName=name; currentDept=document.getElementById('playerDept').value.trim();
@@ -1258,6 +1266,13 @@ async function init(){
   loadLocal(); // load local first so UI isn't blank
   renderLeaderboard();
   refreshViewerDropdown();
+  // Deadline check — lock submissions after deadline
+  if(new Date() > DEADLINE){
+    const banner = document.getElementById('deadline-banner');
+    if(banner) banner.style.display = 'block';
+    const startBtn = document.querySelector('button[onclick="startForm()"]');
+    if(startBtn){ startBtn.disabled = true; startBtn.textContent = '🔒 Submissions Closed'; }
+  }
   if(GOOGLE_SCRIPT_URL){
     // Silently fetch latest data from Sheet in background
     try{
