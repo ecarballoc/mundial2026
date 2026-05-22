@@ -308,6 +308,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="nav-tabs">
     <button class="tab on"  onclick="showView('predict',this)">My Predictions</button>
     <button class="tab"     onclick="showView('leaderboard',this)">Leaderboard & Results</button>
+    <button class="tab"     onclick="showView('rules',this)">Rules</button>
     <button class="tab"     onclick="showView('admin',this)">Admin</button>
   </div>
 </nav>
@@ -401,6 +402,112 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="hub-divider">Match Hub</div>
 
   <div id="hub-schedule"></div>
+</div>
+
+
+<!-- ══════════════════════ RULES ══════════════════════ -->
+<div id="view-rules" class="view">
+  <div style="max-width:640px;margin:0 auto">
+
+    <!-- HEADER -->
+    <div style="text-align:center;padding:2rem 1rem 1.5rem">
+      <h2 style="font-size:2.5rem;color:var(--txt)">Pool <span style="color:var(--gold)">Rules</span></h2>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:.4rem">Everything you need to know to play</p>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="card" style="margin-bottom:1rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:var(--gold);margin-bottom:1rem">⚽ How It Works</div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <div style="display:flex;gap:.9rem;align-items:flex-start">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding-top:1px">1</div>
+          <div><div style="font-size:.88rem;font-weight:600;color:var(--txt)">Pay your entry fee</div><div style="font-size:.78rem;color:var(--muted);margin-top:2px">$50 FJD cash — see Amanda Hourn at Accounting. You are not officially entered until payment is confirmed.</div></div>
+        </div>
+        <div style="display:flex;gap:.9rem;align-items:flex-start">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding-top:1px">2</div>
+          <div><div style="font-size:.88rem;font-weight:600;color:var(--txt)">Submit your predictions</div><div style="font-size:.78rem;color:var(--muted);margin-top:2px">Predict the score of all 72 group stage matches and pick which 2 teams advance from each of the 12 groups. Submissions close at midnight June 12 (Fiji time).</div></div>
+        </div>
+        <div style="display:flex;gap:.9rem;align-items:flex-start">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding-top:1px">3</div>
+          <div><div style="font-size:.88rem;font-weight:600;color:var(--txt)">Watch the leaderboard</div><div style="font-size:.78rem;color:var(--muted);margin-top:2px">Points update automatically as matches are played. Check the Leaderboard tab anytime to see where you stand!</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCORING -->
+    <div class="card" style="margin-bottom:1rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:var(--gold);margin-bottom:1rem">🎯 Scoring System</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:.65rem .9rem;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.15);border-radius:8px">
+          <div>
+            <div style="font-size:.88rem;font-weight:600;color:var(--txt)">Exact Score</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:1px">e.g. you predict 2–1 and the result is 2–1</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);letter-spacing:.04em">+3 pts</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:.65rem .9rem;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:8px">
+          <div>
+            <div style="font-size:.88rem;font-weight:600;color:var(--txt)">Correct Result</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:1px">Win, Draw or Loss — right result, wrong score</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);letter-spacing:.04em">+1 pt</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:.65rem .9rem;background:rgba(29,138,68,.08);border:1px solid rgba(29,138,68,.2);border-radius:8px">
+          <div>
+            <div style="font-size:.88rem;font-weight:600;color:var(--txt)">Correct Qualifier</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:1px">Each team you correctly pick to advance from a group</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#5dca8a;letter-spacing:.04em">+2 pts</div>
+        </div>
+        <div style="padding:.6rem .9rem;background:rgba(255,255,255,.02);border-radius:8px;font-size:.75rem;color:var(--muted);font-style:italic">
+          💡 Draws are valid predictions — you can predict 1:1, 0:0, etc. and earn full points!
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIZES -->
+    <div class="card" style="margin-bottom:1rem">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:var(--gold);margin-bottom:1rem">🏆 Prize Breakdown</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem">
+        <div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:.9rem .5rem;text-align:center">
+          <div style="font-size:1.5rem;margin-bottom:.2rem">🥇</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--gold)">1st Place</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--txt);line-height:1">70%</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">of the pot</div>
+        </div>
+        <div style="background:rgba(176,190,197,.07);border:1px solid rgba(176,190,197,.15);border-radius:10px;padding:.9rem .5rem;text-align:center">
+          <div style="font-size:1.5rem;margin-bottom:.2rem">🥈</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#b0bec5">2nd Place</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--txt);line-height:1">20%</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">of the pot</div>
+        </div>
+        <div style="background:rgba(160,105,79,.08);border:1px solid rgba(160,105,79,.2);border-radius:10px;padding:.9rem .5rem;text-align:center">
+          <div style="font-size:1.5rem;margin-bottom:.2rem">🥉</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#a0694f">3rd Place</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--txt);line-height:1">10%</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:2px">of the pot</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIEBREAKER -->
+    <div class="card" style="margin-bottom:1rem;border-color:rgba(245,166,35,.2)">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:var(--gold);margin-bottom:.75rem">🤝 Tiebreaker Rule</div>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:.75rem">
+        If two or more players finish with the same total points, the tiebreaker is determined by whoever predicted the most <strong style="color:var(--txt)">exact scores</strong> (matches where both the home and away score were correct, worth 3 pts each).
+      </p>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.7">
+        If players are still tied after applying the tiebreaker, the prize money for those positions will be <strong style="color:var(--txt)">split equally</strong> between the tied players.
+      </p>
+    </div>
+
+    <!-- SHORT STINT -->
+    <div style="background:rgba(231,76,60,.07);border:1px solid rgba(231,76,60,.2);border-left:3px solid #e74c3c;border-radius:0 10px 10px 0;padding:.85rem 1rem;margin-bottom:1rem;font-size:.8rem;color:rgba(240,244,255,.6);line-height:1.7">
+      <strong style="color:#e88;display:block;margin-bottom:.2rem">⚠ Short Stint Crew</strong>
+      If you are on a short stint and may not be onboard when the group stage ends (June 27), please contact <strong style="color:#eaa">Enrique (Security · 725 8723)</strong> before submitting. You must appoint a long stint crew member to collect your prize on your behalf if you win.
+    </div>
+
+  </div>
 </div>
 
 <!-- ══════════════════════ ADMIN ══════════════════════ -->
