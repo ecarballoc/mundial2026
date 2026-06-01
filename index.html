@@ -223,6 +223,10 @@ nav{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-
 .lb-hdr span:last-child,.lb-hdr span:nth-child(3){text-align:right}
 .lb-item{display:grid;grid-template-columns:40px 1fr 65px 75px;gap:.4rem;align-items:center;padding:.7rem 1rem;border-radius:var(--radius);margin-bottom:.32rem;transition:background .15s}
 .lb-item:hover{background:rgba(255,255,255,.03)}
+#lb-list{max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--gold-b) transparent;}
+#lb-list::-webkit-scrollbar{width:4px;}
+#lb-list::-webkit-scrollbar-track{background:transparent;}
+#lb-list::-webkit-scrollbar-thumb{background:var(--gold-b);border-radius:99px;}
 .lb-item.pos1{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2)}
 .lb-item.pos2{background:rgba(176,190,197,.07)}
 .lb-item.pos3{background:rgba(160,105,79,.09)}
