@@ -392,7 +392,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div id="view-leaderboard" class="view">
   <div class="lb-meta">
     <h2>Leaderboard</h2>
-    <div class="pot-tag">💰 Prize Pot: <span id="pot-display">$0</span></div>
+    <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+      <div class="pot-tag">💰 Prize Pot: <span id="pot-display">$0</span></div>
+      <button class="btn btn-outline btn-sm" id="lb-refresh-btn" onclick="refreshLeaderboard()" style="font-size:.72rem;padding:4px 12px">↻ Refresh</button>
+    </div>
   </div>
   <div class="stats-row">
     <div class="stat"><div class="n" id="s-players">0</div><p>Entered</p></div>
@@ -1356,14 +1359,38 @@ async function showView(id,btn){
       // Then fetch fresh data silently
       try{
         const [re, rr] = await Promise.all([fetchEntriesFromSheet(), fetchResultsFromSheet()]);
-        let changed = false;
-        if(re && re.length >= entries.length){ entries=re; changed=true; }
-        if(rr && Object.keys(rr).length >= Object.keys(results).length){ results=rr; changed=true; }
-        if(changed){ saveLocal(); recalcAll(); renderLeaderboard(); renderHub(); }
+        // Always trust Sheet data
+        if(re !== null) entries = re;
+        if(rr !== null) results = rr;
+        saveLocal(); recalcAll(); renderLeaderboard(); renderHub();
       }catch(e){}
     }
   }
 }
+async function refreshLeaderboard(){
+  const btn = document.getElementById('lb-refresh-btn');
+  if(btn){ btn.textContent = '↻ Syncing…'; btn.disabled = true; }
+  if(GOOGLE_SCRIPT_URL){
+    try{
+      const [re, rr] = await Promise.all([fetchEntriesFromSheet(), fetchResultsFromSheet()]);
+      if(re !== null) entries = re;
+      if(rr !== null) results = rr;
+      saveLocal();
+      recalcAll();
+      renderLeaderboard();
+      renderHub();
+      refreshViewerDropdown();
+      showToast('✓ Leaderboard updated!');
+    }catch(e){
+      showToast('Could not reach Google Sheets — try again.','var(--danger)');
+    }
+  } else {
+    recalcAll(); renderLeaderboard(); renderHub();
+    showToast('✓ Refreshed from local data');
+  }
+  if(btn){ btn.textContent = '↻ Refresh'; btn.disabled = false; }
+}
+
 let toastTimer;
 function showToast(msg,bg='var(--ok)'){
   const t=document.getElementById('toast');
@@ -1385,27 +1412,19 @@ async function init(){
     if(startBtn){ startBtn.disabled = true; startBtn.textContent = '🔒 Submissions Closed'; }
   }
   if(GOOGLE_SCRIPT_URL){
-    // Silently fetch latest data from Sheet in background
+    // ALWAYS trust Google Sheets — overwrite local data completely
     try{
       const [remoteEntries, remoteResults] = await Promise.all([
         fetchEntriesFromSheet(),
         fetchResultsFromSheet()
       ]);
-      let changed = false;
-      if(remoteEntries && remoteEntries.length >= entries.length){
-        entries = remoteEntries;
-        changed = true;
-      }
-      if(remoteResults && Object.keys(remoteResults).length >= Object.keys(results).length){
-        results = remoteResults;
-        changed = true;
-      }
-      if(changed){
-        saveLocal();
-        recalcAll();
-        renderLeaderboard();
-        refreshViewerDropdown();
-      }
+      // Always replace local with Sheet data regardless of count
+      if(remoteEntries !== null) entries = remoteEntries;
+      if(remoteResults !== null) results = remoteResults;
+      saveLocal();
+      recalcAll();
+      renderLeaderboard();
+      refreshViewerDropdown();
     }catch(e){
       console.log('Background sync failed, using local data');
     }
