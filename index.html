@@ -635,7 +635,7 @@ function etToFiji(dateStr, timeET) {
   // dateStr: "2026-06-11", timeET: "15:00" (24h)
   const [h,m] = timeET.split(':').map(Number);
   const dt = new Date(`${dateStr}T${timeET}:00-04:00`);
-  const fiji = new Date(dt.getTime() + 16*60*60*1000);
+  const fiji = new Date(dt.getTime() + 12*60*60*1000);
   // Format
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
