@@ -1403,6 +1403,7 @@ function showToast(msg,bg='var(--ok)'){
 async function init(){
   loadLocal(); // load local first so UI isn't blank
   renderLeaderboard();
+  renderHub();
   refreshViewerDropdown();
   // Deadline check — lock submissions after deadline
   if(new Date() > DEADLINE){
