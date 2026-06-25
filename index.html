@@ -30,7 +30,19 @@ function doPost(e){
   }
   if(data.action==='getResults'){
     var s=ss.getSheetByName('Results');
-    return ContentService.createTextOutput(JSON.stringify({rows:s.getDataRange().getValues()})).setMimeType(ContentService.MimeType.JSON);
+    var rows=s.getDataRange().getValues();
+    var out={};
+    for(var i=1;i<rows.length;i++){
+      var id=rows[i][0],h=rows[i][1],a=rows[i][2];
+      if(!id) continue;
+      if(String(id).startsWith('Q_')){
+        // qualifier row — home column stores JSON array
+        try{ out[id]=JSON.parse(h); }catch(e){ out[id]=[]; }
+      } else {
+        out[id]={h:Number(h),a:Number(a)};
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ok:true,results:out})).setMimeType(ContentService.MimeType.JSON);
   }
   if(data.action==='saveResult'){
     var s=ss.getSheetByName('Results'),rows=s.getDataRange().getValues(),found=false;
@@ -405,7 +417,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="lb-hdr"><span>Pos</span><span>Player</span><span>Pts</span><span>Paid</span></div>
   <div id="lb-list"><div class="empty"><span class="big">⚽</span><p>No entries yet — be the first!</p></div></div>
 
-  <!-- RESULTS & SCHEDULE HUB -->
+  <!-- OFFICIAL QUALIFIERS PANEL -->
+  <div id="oq-section" style="display:none;margin-top:1.5rem">
+    <div class="hub-divider">✓ Official Qualifiers</div>
+    <div id="oq-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.6rem;margin-top:1rem"></div>
+  </div>
+
+  <!-- MATCH HUB -->
   <div class="hub-divider">Match Hub</div>
 
   <div id="hub-schedule"></div>
@@ -578,7 +596,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_KQsSzt6dXethV2ALchHiXiOaOnvYvgivitqyfqOpmdrCT9vDjISun3xeYzX84U9DkA/exec'; // ← paste your Apps Script URL here
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyy2SXj8u0gdxDMiMCpLtItoO3ldsV_NZjN7EmW6COXKzXU0gMTKSNoDJu5UnjGYhBMhQ/exec'; // ← paste your Apps Script URL here
 const ADMIN_PASS  = 'segcrew2026';
 const ENTRY_FEE   = 50;
 const DEADLINE    = new Date('2026-06-12T00:00:00+12:00'); // Fiji midnight June 12 — edit date to adjust
@@ -787,8 +805,21 @@ async function fetchEntriesFromSheet(){
 }
 async function fetchResultsFromSheet(){
   const d=await gsPost({action:'getResults'});
-  if(!d||!d.rows) return null;
-  const res={};d.rows.slice(1).forEach(r=>{if(r[0])res[r[0]]={h:Number(r[1]),a:Number(r[2])};});return res;
+  if(!d) return null;
+  // New format: {ok:true, results:{...}} — already parsed with qualifiers handled
+  if(d.results) return d.results;
+  // Legacy fallback: {rows:[[...],...]}
+  if(!d.rows) return null;
+  const res={};
+  d.rows.slice(1).forEach(r=>{
+    if(!r[0]) return;
+    if(String(r[0]).startsWith('Q_')){
+      try{ res[r[0]]=JSON.parse(r[1]); }catch(e){ res[r[0]]=[]; }
+    } else {
+      res[r[0]]={h:Number(r[1]),a:Number(r[2])};
+    }
+  });
+  return res;
 }
 async function saveResultToSheet(id,h,a){return await gsPost({action:'saveResult',matchId:id,home:h,away:a});}
 async function markPaidOnSheet(ts,pts){return await gsPost({action:'markPaid',timestamp:ts,points:pts});}
@@ -1164,8 +1195,28 @@ function printPredictions(){
 // ══════════════════════════════════════
 //  LEADERBOARD
 // ══════════════════════════════════════
+function renderOfficialQualifiers(){
+  const section=document.getElementById('oq-section');
+  const grid=document.getElementById('oq-grid');
+  if(!section||!grid) return;
+  const groupsWithPicks=GROUPS.filter(g=>{
+    const oq=results[`Q_${g.id}`];
+    return oq&&Array.isArray(oq)&&oq.length===2;
+  });
+  if(!groupsWithPicks.length){section.style.display='none';return;}
+  section.style.display='block';
+  grid.innerHTML=groupsWithPicks.map(g=>{
+    const oq=results[`Q_${g.id}`];
+    return `<div style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;padding:.7rem .9rem">
+      <div style="font-size:.68rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem">Group ${g.id}</div>
+      ${oq.map(t=>`<div style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:600;color:var(--txt);padding:2px 0">${f(t)} ${t}</div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
 function renderLeaderboard(){
   recalcAll();
+  renderOfficialQualifiers();
   const sorted=[...entries].sort((a,b)=>b.points-a.points);
   const paidCount=entries.filter(e=>e.paid).length;
   document.getElementById('pot-display').textContent='$'+(paidCount*ENTRY_FEE);
@@ -1322,11 +1373,19 @@ function showResGroup(id,btn){
   document.querySelectorAll('#res-group-pills .spill').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
-function toggleOQ(gid,team,el){
+async function toggleOQ(gid,team,el){
   if(!results[`Q_${gid}`]) results[`Q_${gid}`]=[];
   const arr=results[`Q_${gid}`],idx=arr.indexOf(team);
   if(idx>=0){arr.splice(idx,1);el.className='qt';}
   else{if(arr.length>=2){showToast('Already 2 official qualifiers!','var(--danger)');return;}arr.push(team);el.className='qt sel';}
+  // Save qualifier to Sheet immediately
+  saveLocal();
+  if(GOOGLE_SCRIPT_URL){
+    try{
+      await gsPost({action:'saveResult',matchId:`Q_${gid}`,home:JSON.stringify(results[`Q_${gid}`]),away:''});
+      showToast(`✓ Group ${gid} qualifiers saved!`);
+    }catch(e){ showToast('Saved locally — Sheet sync failed','var(--danger)'); }
+  }
 }
 async function saveResults(){
   let saved=0;
